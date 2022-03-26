@@ -2,6 +2,7 @@ from enum import unique
 import re
 import json
 import pandas as pd
+from collections import Counter
 
 file = open('./farmers-protest-tweets-2021-03-5.json')
 lista = []
@@ -10,6 +11,8 @@ for i in file:
     lista.append(data)
 tweets = {}
 tweets['tweets'] = lista
+
+file.close()
 
 def top10_retweeted():
     res = sorted(tweets['tweets'], key = lambda x: x['retweetCount'], reverse = True)[:10]
@@ -21,7 +24,6 @@ def top10_retweeted():
 
 def top10_user_tweets():
     print('Top 10 usuarios con más tweets')
-    count = 1
     count2 = 1
     filtrados = list({i['user']['id']:i for i in tweets['tweets']}.values())
     res3 = sorted(filtrados, key = lambda x: x['user']['statusesCount'], reverse = True)[:10]
@@ -29,10 +31,32 @@ def top10_user_tweets():
         print(f"{count2}) {i['user']['username']} {i['user']['statusesCount']}")
         count2 += 1
 
+def top10_days_tweets():
+    lista_dias = []
+    for i in tweets['tweets']:
+        dia = i['date'][:10]
+        lista_dias.append(dia)
+    dias = Counter(lista_dias)
+    cont = 1
+    for i, j in dias.most_common(10):
+        print(f"{cont}) {i}: {j}")
+        cont += 1
 
-file.close()
-# raw_tweets = pd.read_json(r'./farmers-protest-tweets-2021-03-5.json', lines=True)
-# raw_tweets = raw_tweets[raw_tweets['lang']=='en']
-# print("Shape: ", raw_twee1ts.shape)
-# print(raw_tweets.head(5))
-top10_user_tweets()
+
+def top10_hashtags():
+    lista_hash = []
+    for i in tweets['tweets']:
+        tweet = i['content']
+        x = re.findall(r"#(\w+)", tweet)
+        lista_hash.append(x)
+
+    lista_hash2 = []
+    for i in lista_hash:
+        for j in i:
+            lista_hash2.append(j)
+
+    cont = 1
+    hashtags = Counter(lista_hash2)
+    for i, j in hashtags.most_common(10):
+        print(f"{cont}) #{i}: {j}")
+        cont += 1
